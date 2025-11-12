@@ -1,7 +1,0 @@
-v 4
-file . "ParkinSystemTB.vhd" "d9ec30d788617b090b9f8171c222674a825f9e15" "20251112152633.499":
-  entity tb_car_parking at 2( 2) + 0 on 13;
-  architecture testbench of tb_car_parking at 8( 99) + 0 on 14;
-file . "counter.vhd" "27b4c4806db1cf64f91f501a177d9842a2cad2d6" "20251112135218.787":
-  entity car_parking_system_vhdl at 1( 0) + 0 on 11;
-  architecture arch of car_parking_system_vhdl at 20( 622) + 0 on 12;
