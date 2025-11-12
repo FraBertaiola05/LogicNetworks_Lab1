@@ -20,27 +20,52 @@ end Car_Parking_System_VHDL;
 architecture arch of Car_Parking_System_VHDL is
     --State declarations
     type FSM_States is (IDLE, WAIT_PASSWORD, WRONG_PASS, RIGHT_PASS, STOP);
-    signal State : FSM_States;
+    signal current_state : FSM_States;
     --Counter
-    signal Counter : integer range 0 to ClockFrequencyHz * 60;
+    signal counter_wait : std_logic_vector(3 downto 0);
 
 
 begin
-    process(clk) is
-
-        -- Procedure for changing state after a given time
-        procedure ChangeState(ToState : FSM_States;
-                              Seconds : integer := 0) is
-            variable ClockCycles  : integer;
-        begin
-            ClockCycles  := Seconds * ClockFrequencyHz -1;
-            if Counter = ClockCycles then
-                Counter <= 0;
-                State   <= ToState;
-            end if;
-        end procedure;
-
+    process(clk, rst) is
     begin
+        if(reset_n='0') then
+            current_state <= IDLE;
+        elsif(rising_edge(clk)) then
+            --idle state
+            when IDLE =>
+            green_tmp <= '0';
+            red_tmp <= '0';
+            HEX_1 <= "1111111"; 
+            HEX_2 <= "1111111"; 
+
+            --wait pass
+            when WAIT_PASSWORD =>
+            green_tmp <= '0';
+            red_tmp <= '1';
+            HEX_1 <= "0000110"; --E
+            HEX_2 <= "0101011"; --n 
+            
+            --wrong pass
+            when WRONG_PASS =>
+            green_tmp <= '0';
+            red_tmp <= '0'; --blonks
+            HEX_1 <= "0000110"; --E
+            HEX_2 <= "0000110"; --E 
+
+            --right pass
+            when RIGHT_PASS =>
+            green_tmp <= '0'; --blinks
+            red_tmp <= '0';
+            HEX_1 <= "0000010"; --6
+            HEX_2 <= "1000000"; --O 
+
+            --stop
+            when RIGHT_PASS =>
+            green_tmp <= '0';
+            red_tmp <= '0'; --blinks
+            HEX_1 <= "0100100"; --S
+            HEX_2 <= "0001100"; --P
+        end if;
     end process;
 
 end arch ; -- arch
