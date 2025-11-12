@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Philippe Velha">
+
+<title>Car Parking System in VHDL</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="tutorial_files/libs/clipboard/clipboard.min.js"></script>
+<script src="tutorial_files/libs/quarto-html/quarto.js"></script>
+<script src="tutorial_files/libs/quarto-html/popper.min.js"></script>
+<script src="tutorial_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="tutorial_files/libs/quarto-html/anchor.min.js"></script>
+<link href="tutorial_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="tutorial_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="tutorial_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="tutorial_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="tutorial_files/libs/bootstrap/bootstrap-114206924269d902d9ce8e9198184aed.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="tutorial_files/libs/quarto-diagram/mermaid.min.js"></script>
+<script src="tutorial_files/libs/quarto-diagram/mermaid-init.js"></script>
+<link href="tutorial_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a>
+  <ul class="collapse">
+  <li><a href="#system-overview" id="toc-system-overview" class="nav-link" data-scroll-target="#system-overview"><span class="header-section-number">1.1</span> System Overview</a></li>
+  </ul></li>
+  <li><a href="#architecture-analysis" id="toc-architecture-analysis" class="nav-link" data-scroll-target="#architecture-analysis"><span class="header-section-number">2</span> Architecture Analysis</a>
+  <ul class="collapse">
+  <li><a href="#entity-declaration" id="toc-entity-declaration" class="nav-link" data-scroll-target="#entity-declaration"><span class="header-section-number">2.1</span> Entity Declaration</a>
+  <ul class="collapse">
+  <li><a href="#port-descriptions" id="toc-port-descriptions" class="nav-link" data-scroll-target="#port-descriptions"><span class="header-section-number">2.1.1</span> Port Descriptions</a></li>
+  </ul></li>
+  <li><a href="#finite-state-machine-design" id="toc-finite-state-machine-design" class="nav-link" data-scroll-target="#finite-state-machine-design"><span class="header-section-number">2.2</span> Finite State Machine Design</a>
+  <ul class="collapse">
+  <li><a href="#state-definitions" id="toc-state-definitions" class="nav-link" data-scroll-target="#state-definitions"><span class="header-section-number">2.2.1</span> State Definitions</a></li>
+  <li><a href="#state-descriptions" id="toc-state-descriptions" class="nav-link" data-scroll-target="#state-descriptions"><span class="header-section-number">2.2.2</span> State Descriptions</a></li>
+  <li><a href="#state-transition-diagram" id="toc-state-transition-diagram" class="nav-link" data-scroll-target="#state-transition-diagram"><span class="header-section-number">2.2.3</span> State Transition Diagram</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#code-implementation" id="toc-code-implementation" class="nav-link" data-scroll-target="#code-implementation"><span class="header-section-number">3</span> Code Implementation</a>
+  <ul class="collapse">
+  <li><a href="#internal-signals" id="toc-internal-signals" class="nav-link" data-scroll-target="#internal-signals"><span class="header-section-number">3.1</span> Internal Signals</a></li>
+  <li><a href="#sequential-logic-state-register" id="toc-sequential-logic-state-register" class="nav-link" data-scroll-target="#sequential-logic-state-register"><span class="header-section-number">3.2</span> Sequential Logic: State Register</a></li>
+  <li><a href="#combinational-logic-next-state-logic" id="toc-combinational-logic-next-state-logic" class="nav-link" data-scroll-target="#combinational-logic-next-state-logic"><span class="header-section-number">3.3</span> Combinational Logic: Next State Logic</a>
+  <ul class="collapse">
+  <li><a href="#key-transition-logic" id="toc-key-transition-logic" class="nav-link" data-scroll-target="#key-transition-logic"><span class="header-section-number">3.3.1</span> Key Transition Logic</a></li>
+  </ul></li>
+  <li><a href="#counter-process" id="toc-counter-process" class="nav-link" data-scroll-target="#counter-process"><span class="header-section-number">3.4</span> Counter Process</a></li>
+  <li><a href="#output-process" id="toc-output-process" class="nav-link" data-scroll-target="#output-process"><span class="header-section-number">3.5</span> Output Process</a>
+  <ul class="collapse">
+  <li><a href="#segment-display-encoding" id="toc-segment-display-encoding" class="nav-link" data-scroll-target="#segment-display-encoding"><span class="header-section-number">3.5.1</span> 7-Segment Display Encoding</a></li>
+  <li><a href="#output-states-summary" id="toc-output-states-summary" class="nav-link" data-scroll-target="#output-states-summary"><span class="header-section-number">3.5.2</span> Output States Summary</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#design-considerations" id="toc-design-considerations" class="nav-link" data-scroll-target="#design-considerations"><span class="header-section-number">4</span> Design Considerations</a>
+  <ul class="collapse">
+  <li><a href="#timing-analysis" id="toc-timing-analysis" class="nav-link" data-scroll-target="#timing-analysis"><span class="header-section-number">4.1</span> Timing Analysis</a></li>
+  <li><a href="#sensor-logic" id="toc-sensor-logic" class="nav-link" data-scroll-target="#sensor-logic"><span class="header-section-number">4.2</span> Sensor Logic</a></li>
+  </ul></li>
+  <li><a href="#testing-strategy" id="toc-testing-strategy" class="nav-link" data-scroll-target="#testing-strategy"><span class="header-section-number">5</span> Testing Strategy</a>
+  <ul class="collapse">
+  <li><a href="#test-scenarios" id="toc-test-scenarios" class="nav-link" data-scroll-target="#test-scenarios"><span class="header-section-number">5.1</span> Test Scenarios</a>
+  <ul class="collapse">
+  <li><a href="#scenario-1-normal-entry" id="toc-scenario-1-normal-entry" class="nav-link" data-scroll-target="#scenario-1-normal-entry"><span class="header-section-number">5.1.1</span> Scenario 1: Normal Entry</a></li>
+  <li><a href="#scenario-2-wrong-password" id="toc-scenario-2-wrong-password" class="nav-link" data-scroll-target="#scenario-2-wrong-password"><span class="header-section-number">5.1.2</span> Scenario 2: Wrong Password</a></li>
+  <li><a href="#scenario-3-multiple-cars" id="toc-scenario-3-multiple-cars" class="nav-link" data-scroll-target="#scenario-3-multiple-cars"><span class="header-section-number">5.1.3</span> Scenario 3: Multiple Cars</a></li>
+  <li><a href="#scenario-4-reset" id="toc-scenario-4-reset" class="nav-link" data-scroll-target="#scenario-4-reset"><span class="header-section-number">5.1.4</span> Scenario 4: Reset</a></li>
+  </ul></li>
+  <li><a href="#testbench-development" id="toc-testbench-development" class="nav-link" data-scroll-target="#testbench-development"><span class="header-section-number">5.2</span> Testbench Development</a>
+  <ul class="collapse">
+  <li><a href="#suggested-testbench-structure" id="toc-suggested-testbench-structure" class="nav-link" data-scroll-target="#suggested-testbench-structure"><span class="header-section-number">5.2.1</span> Suggested Testbench Structure</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">6</span> Exercises</a></li>
+  <li><a href="#simulation-and-analysis" id="toc-simulation-and-analysis" class="nav-link" data-scroll-target="#simulation-and-analysis"><span class="header-section-number">7</span> Simulation and Analysis</a>
+  <ul class="collapse">
+  <li><a href="#using-ghdl" id="toc-using-ghdl" class="nav-link" data-scroll-target="#using-ghdl"><span class="header-section-number">7.1</span> Using GHDL</a>
+  <ul class="collapse">
+  <li><a href="#compilation-steps" id="toc-compilation-steps" class="nav-link" data-scroll-target="#compilation-steps"><span class="header-section-number">7.1.1</span> Compilation Steps</a></li>
+  <li><a href="#simulation-execution" id="toc-simulation-execution" class="nav-link" data-scroll-target="#simulation-execution"><span class="header-section-number">7.1.2</span> Simulation Execution</a></li>
+  <li><a href="#waveform-viewing" id="toc-waveform-viewing" class="nav-link" data-scroll-target="#waveform-viewing"><span class="header-section-number">7.1.3</span> Waveform Viewing</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">8</span> Conclusion</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">9</span> References</a>
+  <ul class="collapse">
+  <li><a href="#potential-improvements-for-a-future-implementation" id="toc-potential-improvements-for-a-future-implementation" class="nav-link" data-scroll-target="#potential-improvements-for-a-future-implementation"><span class="header-section-number">9.1</span> Potential Improvements (for a future implementation)</a></li>
+  </ul></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="tutorial.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Car Parking System in VHDL</h1>
+<p class="subtitle lead">A Finite State Machine Approach</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Philippe Velha </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
+<p>This laboratory aims at the complete VHDL implementation of an automated car parking system. The work is in 2 phases. The first phase looks at a simplified car park where you will have to create the different parts of the design and finally write the VHDL code. All the work will be performed in simulation only so the sensors are considered perfect. The design exercizes on key concepts in digital design including:</p>
+<ul>
+<li>Finite State Machine (FSM) design</li>
+<li>Sequential and combinational logic</li>
+<li>Sensor-based control systems</li>
+<li>Password validation</li>
+<li>Visual feedback using LEDs and 7-segment displays (from a simulation point of view)</li>
+</ul>
+<section id="system-overview" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="system-overview"><span class="header-section-number">1.1</span> System Overview</h2>
+<p>The car parking system controls access to a parking facility with physical barriers using:</p>
+<ul>
+<li><strong>Two sensors</strong>: Front sensor (detects approaching cars) and back sensor (detects cars passing through)</li>
+<li><strong>Password input</strong>: Two 2-bit password inputs that must match a predefined code. The user has 4 buttons labelled A, B, C and D corresponding to the code <em>‘00’</em>, <em>‘01’</em>, <em>‘10’</em> and <em>‘11’</em> respectively (in practice you can see it as a single 4 bit password).</li>
+<li><strong>Visual feedback</strong>: Red and green LEDs, plus two 7-segment displays</li>
+<li><strong>Gate control logic</strong>: Implemented as a finite state machine</li>
+</ul>
+</section>
+</section>
+<section id="architecture-analysis" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Architecture Analysis</h1>
+<section id="entity-declaration" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="entity-declaration"><span class="header-section-number">2.1</span> Entity Declaration</h2>
+<p>This declaration is mandatory as you will be asked to pass it to other groups!</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">entity</span> <span class="dv">Car_Parking_System_VHDL</span> <span class="kw">is</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">port</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  clk<span class="ot">,</span>reset_n<span class="ot">:</span> <span class="kw">in</span> <span class="dt">std_logic</span>;</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  front_sensor<span class="ot">,</span> back_sensor<span class="ot">:</span> <span class="kw">in</span> <span class="dt">std_logic</span>;</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  password_1<span class="ot">,</span> password_2<span class="ot">:</span> <span class="kw">in</span> <span class="dt">std_logic_vector</span>(<span class="dv">1</span> <span class="ot">downto</span> <span class="dv">0</span>);</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  GREEN_LED<span class="ot">,</span>RED_LED<span class="ot">:</span> <span class="kw">out</span> <span class="dt">std_logic</span>;</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  HEX_1<span class="ot">,</span> HEX_2<span class="ot">:</span> <span class="kw">out</span> <span class="dt">std_logic_vector</span>(<span class="dv">6</span> <span class="ot">downto</span> <span class="dv">0</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="cf">end Car_Parking_System_VHDL;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="port-descriptions" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="port-descriptions"><span class="header-section-number">2.1.1</span> Port Descriptions</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Port</th>
+<th>Direction</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>clk</code></td>
+<td>Input</td>
+<td>std_logic</td>
+<td>System clock</td>
+</tr>
+<tr class="even">
+<td><code>reset_n</code></td>
+<td>Input</td>
+<td>std_logic</td>
+<td>Active-low asynchronous reset</td>
+</tr>
+<tr class="odd">
+<td><code>front_sensor</code></td>
+<td>Input</td>
+<td>std_logic</td>
+<td>Detects car at entrance</td>
+</tr>
+<tr class="even">
+<td><code>back_sensor</code></td>
+<td>Input</td>
+<td>std_logic</td>
+<td>Detects car passing gate</td>
+</tr>
+<tr class="odd">
+<td><code>password_1</code></td>
+<td>Input</td>
+<td>2-bit vector</td>
+<td>First password digit</td>
+</tr>
+<tr class="even">
+<td><code>password_2</code></td>
+<td>Input</td>
+<td>2-bit vector</td>
+<td>Second password digit</td>
+</tr>
+<tr class="odd">
+<td><code>GREEN_LED</code></td>
+<td>Output</td>
+<td>std_logic</td>
+<td>Success indicator</td>
+</tr>
+<tr class="even">
+<td><code>RED_LED</code></td>
+<td>Output</td>
+<td>std_logic</td>
+<td>Wait/error indicator</td>
+</tr>
+<tr class="odd">
+<td><code>HEX_1</code></td>
+<td>Output</td>
+<td>7-bit vector</td>
+<td>First 7-segment display</td>
+</tr>
+<tr class="even">
+<td><code>HEX_2</code></td>
+<td>Output</td>
+<td>7-bit vector</td>
+<td>Second 7-segment display</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: The correct password is: <code>password_1 = "01"</code> and <code>password_2 = "10"</code></p>
+<p>This design uses two separate 2-bit inputs that together form a 4-bit password (“0110” when concatenated). While functional, <strong>a better design approach</strong> would be to use a single 4-bit password input:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>password<span class="ot">:</span> <span class="kw">in</span> <span class="dt">std_logic_vector</span>(<span class="dv">3</span> <span class="ot">downto</span> <span class="dv">0</span>);  <span class="co">-- Single 4-bit password</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Note</strong>: As you may have notice there are no physical barrier but just a visual indicator.</p>
+</section>
+</section>
+<section id="finite-state-machine-design" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="finite-state-machine-design"><span class="header-section-number">2.2</span> Finite State Machine Design</h2>
+<p>First you need to create the FSM of the car park in order to control it properly.</p>
+<section id="state-definitions" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="state-definitions"><span class="header-section-number">2.2.1</span> State Definitions</h3>
+<p>The following is a possible implementation and is not mandatory.</p>
+<p>The system could use five states:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ot">type</span> FSM_States <span class="ot">is</span> (IDLE<span class="ot">,</span> WAIT_PASSWORD<span class="ot">,</span> WRONG_PASS<span class="ot">,</span> RIGHT_PASS<span class="ot">,</span> STOP);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="state-descriptions" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="state-descriptions"><span class="header-section-number">2.2.2</span> State Descriptions</h3>
+<ol type="1">
+<li><p><strong>IDLE</strong>: System waiting for a car</p>
+<ul>
+<li>No LEDs active</li>
+<li>Displays off</li>
+<li>Monitors front sensor</li>
+</ul></li>
+<li><p><strong>WAIT_PASSWORD</strong>: Car detected, waiting for password entry</p>
+<ul>
+<li>Red LED on (steady)</li>
+<li>Display shows “En” (Enter password)</li>
+<li>Waits 10 clock cycles before checking password</li>
+</ul></li>
+<li><p><strong>WRONG_PASS</strong>: Incorrect password entered</p>
+<ul>
+<li>Red LED blinking</li>
+<li>Display shows “EE” (Error)</li>
+<li>Waits for correct password</li>
+</ul></li>
+<li><p><strong>RIGHT_PASS</strong>: Correct password, gate opening</p>
+<ul>
+<li>Green LED blinking</li>
+<li>Display shows “GO”</li>
+<li>Monitors sensors for car passage</li>
+</ul></li>
+<li><p><strong>STOP</strong>: Current car passing, next car detected</p>
+<ul>
+<li>Red LED blinking</li>
+<li>Display shows “SP” (Stop)</li>
+<li>Requires password from next car</li>
+</ul></li>
+</ol>
+</section>
+<section id="state-transition-diagram" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="state-transition-diagram"><span class="header-section-number">2.2.3</span> State Transition Diagram</h3>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">stateDiagram-v2
+    [*] --&gt; IDLE
+    IDLE --&gt; WAIT_PASSWORD: front_sensor='1'
+    IDLE --&gt; IDLE: front_sensor='0'
+    
+    WAIT_PASSWORD --&gt; WAIT_PASSWORD: counter≤9
+    WAIT_PASSWORD --&gt; RIGHT_PASS: counter&gt;9 AND password correct
+    WAIT_PASSWORD --&gt; WRONG_PASS: counter&gt;9 AND password wrong
+    
+    WRONG_PASS --&gt; RIGHT_PASS: password correct
+    WRONG_PASS --&gt; WRONG_PASS: password wrong
+    
+    RIGHT_PASS --&gt; STOP: front='1' AND back='1'
+    RIGHT_PASS --&gt; IDLE: back='1' AND front='0'
+    RIGHT_PASS --&gt; RIGHT_PASS: back='0'
+    
+    STOP --&gt; RIGHT_PASS: password correct
+    STOP --&gt; STOP: password wrong
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="code-implementation" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Code Implementation</h1>
+<p>In the following you have some hints on how to proceed. Your not required to follow exactly the same structure.</p>
+<section id="internal-signals" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="internal-signals"><span class="header-section-number">3.1</span> Internal Signals</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">signal</span> current_state<span class="ot">,</span> next_state<span class="ot">:</span> FSM_States;</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ot">signal</span> counter_wait<span class="ot">:</span> <span class="dt">std_logic_vector</span>(<span class="dv">31</span> <span class="ot">downto</span> <span class="dv">0</span>);</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ot">signal</span> red_tmp<span class="ot">,</span> green_tmp<span class="ot">:</span> <span class="dt">std_logic</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><code>current_state</code>/<code>next_state</code>: FSM state registers</li>
+<li><code>counter_wait</code>: 32-bit counter for password input timing</li>
+<li><code>red_tmp</code>/<code>green_tmp</code>: Temporary LED signals for blinking</li>
+</ul>
+</section>
+<section id="sequential-logic-state-register" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="sequential-logic-state-register"><span class="header-section-number">3.2</span> Sequential Logic: State Register</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">process</span>(clk<span class="ot">,</span> reset_n)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">begin</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span>(reset_n<span class="ot">=</span><span class="bn">'0'</span>) <span class="kw">then</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    current_state <span class="ot">&lt;=</span> IDLE;</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">elsif</span>(<span class="kw">rising_edge</span>(clk)) <span class="kw">then</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    current_state <span class="ot">&lt;=</span> next_state;</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">end</span> <span class="kw">if</span>;</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> <span class="kw">process</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Purpose</strong>: Updates the current state on each clock cycle, with asynchronous reset to IDLE.</p>
+</section>
+<section id="combinational-logic-next-state-logic" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="combinational-logic-next-state-logic"><span class="header-section-number">3.3</span> Combinational Logic: Next State Logic</h2>
+<p>The next state logic is purely combinational and determines state transitions based on:</p>
+<ul>
+<li>Current state</li>
+<li>Sensor inputs</li>
+<li>Password inputs</li>
+<li>Counter value</li>
+</ul>
+<section id="key-transition-logic" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="key-transition-logic"><span class="header-section-number">3.3.1</span> Key Transition Logic</h3>
+<p><strong>From IDLE</strong>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">when</span> IDLE <span class="ot">=&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span>(front_sensor <span class="ot">=</span> <span class="bn">'1'</span>) <span class="kw">then</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    next_state <span class="ot">&lt;=</span> WAIT_PASSWORD;</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">else</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    next_state <span class="ot">&lt;=</span> IDLE;</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">end</span> <span class="kw">if</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>From WAIT_PASSWORD</strong>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">when</span> WAIT_PASSWORD <span class="ot">=&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span>(counter_wait <span class="ot">&lt;=</span> x<span class="st">"00000009"</span>) <span class="kw">then</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    next_state <span class="ot">&lt;=</span> WAIT_PASSWORD;</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">else</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span>((password_1<span class="ot">=</span><span class="st">"01"</span>) <span class="kw">and</span> (password_2<span class="ot">=</span><span class="st">"10"</span>)) <span class="kw">then</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      next_state <span class="ot">&lt;=</span> RIGHT_PASS;</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      next_state <span class="ot">&lt;=</span> WRONG_PASS;</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span> <span class="kw">if</span>;</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">end</span> <span class="kw">if</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>From RIGHT_PASS</strong> (Most Complex):</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">when</span> RIGHT_PASS <span class="ot">=&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span>(front_sensor<span class="ot">=</span><span class="bn">'1'</span> <span class="kw">and</span> back_sensor <span class="ot">=</span> <span class="bn">'1'</span>) <span class="kw">then</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    next_state <span class="ot">&lt;=</span> STOP;  <span class="co">-- Next car detected while current passing</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">elsif</span>(back_sensor<span class="ot">=</span> <span class="bn">'1'</span>) <span class="kw">then</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    next_state <span class="ot">&lt;=</span> IDLE;  <span class="co">-- Current car passed, no next car</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">else</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    next_state <span class="ot">&lt;=</span> RIGHT_PASS;  <span class="co">-- Gate remains open</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">end</span> <span class="kw">if</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="counter-process" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="counter-process"><span class="header-section-number">3.4</span> Counter Process</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">process</span>(clk<span class="ot">,</span> reset_n)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">begin</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span>(reset_n<span class="ot">=</span><span class="bn">'0'</span>) <span class="kw">then</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    counter_wait <span class="ot">&lt;=</span> (<span class="ot">others</span> <span class="ot">=&gt;</span> <span class="bn">'0'</span>);</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">elsif</span>(<span class="kw">rising_edge</span>(clk)) <span class="kw">then</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span>(current_state<span class="ot">=</span>WAIT_PASSWORD) <span class="kw">then</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>      counter_wait <span class="ot">&lt;=</span> counter_wait <span class="ot">+</span> x<span class="st">"00000001"</span>;</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>      counter_wait <span class="ot">&lt;=</span> (<span class="ot">others</span> <span class="ot">=&gt;</span> <span class="bn">'0'</span>);</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span> <span class="kw">if</span>;</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">end</span> <span class="kw">if</span>;</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> <span class="kw">process</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Purpose</strong>: Creates a 10-clock-cycle delay before checking the password, allowing time for input stabilization.</p>
+</section>
+<section id="output-process" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="output-process"><span class="header-section-number">3.5</span> Output Process</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">process</span>(clk)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">begin</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span>(<span class="kw">rising_edge</span>(clk)) <span class="kw">then</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span>(current_state) <span class="kw">is</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>      <span class="kw">when</span> IDLE <span class="ot">=&gt;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        green_tmp <span class="ot">&lt;=</span> <span class="bn">'0'</span>;</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        red_tmp <span class="ot">&lt;=</span> <span class="bn">'0'</span>;</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        HEX_1 <span class="ot">&lt;=</span> <span class="st">"1111111"</span>; <span class="co">-- off</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        HEX_2 <span class="ot">&lt;=</span> <span class="st">"1111111"</span>; <span class="co">-- off</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>      <span class="kw">when</span> WAIT_PASSWORD <span class="ot">=&gt;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        green_tmp <span class="ot">&lt;=</span> <span class="bn">'0'</span>;</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        red_tmp <span class="ot">&lt;=</span> <span class="bn">'1'</span>;</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        HEX_1 <span class="ot">&lt;=</span> <span class="st">"0000110"</span>; <span class="co">-- E</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        HEX_2 <span class="ot">&lt;=</span> <span class="st">"0101011"</span>; <span class="co">-- n</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>      <span class="co">-- ... (other states)</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span> <span class="kw">case</span>;</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">end</span> <span class="kw">if</span>;</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> <span class="kw">process</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="segment-display-encoding" class="level3" data-number="3.5.1">
+<h3 data-number="3.5.1" class="anchored" data-anchor-id="segment-display-encoding"><span class="header-section-number">3.5.1</span> 7-Segment Display Encoding</h3>
+<p><img src="7segment.jpeg" class="img-fluid" style="width:80.0%"></p>
+<p>We will be using a common anode architecture. Therefore in order to light up one of the segments the corresponding pin needs to be put to ground or ‘0’. So in this logic a ‘0’ is on and a ‘1’ is off.</p>
+<p>We can provide some examples of how to encode the different values like:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Character</th>
+<th>Segments (gfedcba)</th>
+<th>Hex Code</th>
+<th>Binary</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>1000000</td>
+<td>0x40</td>
+<td>Displays “0”</td>
+</tr>
+<tr class="even">
+<td>E</td>
+<td>0000110</td>
+<td>0x06</td>
+<td>Displays “E”</td>
+</tr>
+<tr class="odd">
+<td>n</td>
+<td>0101011</td>
+<td>0x2B</td>
+<td>Displays “n”</td>
+</tr>
+<tr class="even">
+<td>P</td>
+<td>0001100</td>
+<td>0x0C</td>
+<td>Displays “P”</td>
+</tr>
+<tr class="odd">
+<td>S</td>
+<td>0100100</td>
+<td>0x24</td>
+<td>Displays “S”</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>0000010</td>
+<td>0x02</td>
+<td>Displays “6”</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>0010010</td>
+<td>0x12</td>
+<td>Displays “5”</td>
+</tr>
+<tr class="even">
+<td>Off</td>
+<td>1111111</td>
+<td>0x7F</td>
+<td>All segments off</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="output-states-summary" class="level3" data-number="3.5.2">
+<h3 data-number="3.5.2" class="anchored" data-anchor-id="output-states-summary"><span class="header-section-number">3.5.2</span> Output States Summary</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>State</th>
+<th>RED LED</th>
+<th>GREEN LED</th>
+<th>Display</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>IDLE</td>
+<td>Off</td>
+<td>Off</td>
+<td>Off</td>
+</tr>
+<tr class="even">
+<td>WAIT_PASSWORD</td>
+<td>On</td>
+<td>Off</td>
+<td>“En”</td>
+</tr>
+<tr class="odd">
+<td>WRONG_PASS</td>
+<td>Blinking</td>
+<td>Off</td>
+<td>“EE”</td>
+</tr>
+<tr class="even">
+<td>RIGHT_PASS</td>
+<td>Off</td>
+<td>Blinking</td>
+<td>“GO”</td>
+</tr>
+<tr class="odd">
+<td>STOP</td>
+<td>Blinking</td>
+<td>Off</td>
+<td>“SP”</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+<section id="design-considerations" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Design Considerations</h1>
+<section id="timing-analysis" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="timing-analysis"><span class="header-section-number">4.1</span> Timing Analysis</h2>
+<ol type="1">
+<li><p><strong>Password Check Delay</strong>: The system waits for 10 clock cycles (<code>counter_wait &lt;= 9</code>) before validating the password. This provides setup time for password inputs.</p></li>
+<li><p><strong>LED Blinking</strong>: LEDs toggle on every clock edge in their respective states. The blink frequency equals the clock frequency.</p></li>
+</ol>
+</section>
+<section id="sensor-logic" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="sensor-logic"><span class="header-section-number">4.2</span> Sensor Logic</h2>
+<p>The system uses two sensors to detect car position:</p>
+<ul>
+<li><strong>Front sensor only</strong>: Car approaching → Enter password</li>
+<li><strong>Back sensor only</strong>: Car passed through → Return to IDLE</li>
+<li><strong>Both sensors</strong>: Current car passing + next car waiting → STOP state</li>
+</ul>
+<p>This prevents multiple cars from entering without proper authentication.</p>
+</section>
+</section>
+<section id="testing-strategy" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Testing Strategy</h1>
+<section id="test-scenarios" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="test-scenarios"><span class="header-section-number">5.1</span> Test Scenarios</h2>
+<p>You need to create the testbenches to validate the following scenarios:</p>
+<section id="scenario-1-normal-entry" class="level3" data-number="5.1.1">
+<h3 data-number="5.1.1" class="anchored" data-anchor-id="scenario-1-normal-entry"><span class="header-section-number">5.1.1</span> Scenario 1: Normal Entry</h3>
+<ol type="1">
+<li>Assert <code>front_sensor = '1'</code></li>
+<li>Wait 10+ clock cycles</li>
+<li>Input correct password: <code>password_1 = "01"</code>, <code>password_2 = "10"</code></li>
+<li>Verify: GREEN LED blinks, display shows “GO”</li>
+<li>Assert <code>back_sensor = '1'</code></li>
+<li>Verify: System returns to IDLE</li>
+</ol>
+</section>
+<section id="scenario-2-wrong-password" class="level3" data-number="5.1.2">
+<h3 data-number="5.1.2" class="anchored" data-anchor-id="scenario-2-wrong-password"><span class="header-section-number">5.1.2</span> Scenario 2: Wrong Password</h3>
+<ol type="1">
+<li>Assert <code>front_sensor = '1'</code></li>
+<li>Wait 10+ clock cycles</li>
+<li>Input wrong password: e.g., <code>password_1 = "00"</code>, <code>password_2 = "00"</code></li>
+<li>Verify: RED LED blinks, display shows “EE”</li>
+<li>Input correct password</li>
+<li>Verify: System transitions to RIGHT_PASS</li>
+</ol>
+</section>
+<section id="scenario-3-multiple-cars" class="level3" data-number="5.1.3">
+<h3 data-number="5.1.3" class="anchored" data-anchor-id="scenario-3-multiple-cars"><span class="header-section-number">5.1.3</span> Scenario 3: Multiple Cars</h3>
+<ol type="1">
+<li>Car 1 enters with correct password → RIGHT_PASS</li>
+<li>Before <code>back_sensor = '1'</code>, assert <code>front_sensor = '1'</code> again</li>
+<li>Verify: System enters STOP state</li>
+<li>Input correct password for car 2</li>
+<li>Verify: Both cars processed correctly</li>
+</ol>
+</section>
+<section id="scenario-4-reset" class="level3" data-number="5.1.4">
+<h3 data-number="5.1.4" class="anchored" data-anchor-id="scenario-4-reset"><span class="header-section-number">5.1.4</span> Scenario 4: Reset</h3>
+<ol type="1">
+<li>Put system in any state</li>
+<li>Assert <code>reset_n = '0'</code></li>
+<li>Verify: System immediately returns to IDLE</li>
+<li>All outputs reset</li>
+</ol>
+</section>
+</section>
+<section id="testbench-development" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="testbench-development"><span class="header-section-number">5.2</span> Testbench Development</h2>
+<p>You will develop a VHDL testbench to verify these scenarios. Your testbench should:</p>
+<ol type="1">
+<li>Instantiate the <code>Car_Parking_System_VHDL</code> entity</li>
+<li>Generate a clock signal (suggested period: 20 ns for 50 MHz)</li>
+<li>Apply reset at simulation start</li>
+<li>Create stimulus for all test scenarios</li>
+<li>Monitor and verify outputs</li>
+<li>Use assertions or report statements for automated checking</li>
+</ol>
+<section id="suggested-testbench-structure" class="level3" data-number="5.2.1">
+<h3 data-number="5.2.1" class="anchored" data-anchor-id="suggested-testbench-structure"><span class="header-section-number">5.2.1</span> Suggested Testbench Structure</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- Entity with no ports (testbench)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">entity</span> <span class="dv">tb_car_parking</span> <span class="kw">is</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="cf">end tb_car_parking;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="cf">architecture</span> <span class="dv">testbench</span> <span class="kw">of</span> <span class="fu">tb_car_parking</span> <span class="kw">is</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Component declaration</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">component</span> <span class="dv">Car_Parking_System_VHDL</span> <span class="kw">is</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">port</span> (</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>      <span class="co">-- ports here</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    );</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end component;</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Test signals</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="ot">signal</span> clk_tb <span class="ot">:</span> <span class="dt">std_logic</span> <span class="ot">:=</span> <span class="bn">'0'</span>;</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="ot">signal</span> reset_n_tb <span class="ot">:</span> <span class="dt">std_logic</span> <span class="ot">:=</span> <span class="bn">'0'</span>;</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- ... other signals</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Clock period</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  <span class="ot">constant</span> clk_period <span class="ot">:</span> <span class="dt">time</span> <span class="ot">:=</span> <span class="dv">20</span> <span class="dt">ns</span>;</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="cf">begin</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Clock generation</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  clk_tb <span class="ot">&lt;=</span> <span class="kw">not</span> clk_tb <span class="kw">after</span> clk_period<span class="ot">/</span><span class="dv">2</span>;</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- DUT instantiation</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  <span class="dv">DUT</span><span class="ot">:</span> <span class="fu">Car_Parking_System_VHDL</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">port map </span>(</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>      clk <span class="ot">=&gt;</span> clk_tb<span class="ot">,</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>      <span class="co">-- ... other port maps</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    );</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Stimulus process</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>  <span class="dv">stimulus</span><span class="ot">:</span> <span class="sc">process</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>  <span class="sc">begin</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Test scenarios here</span></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">wait</span>;</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>  <span class="sc">end process;</span></span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="cf">end testbench;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="exercises" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Exercises</h1>
+<ol type="1">
+<li><p>Once you have something that is working ask other groups for their testbenches and confront your implementations and results.</p></li>
+<li><p>Add an extra state called <code>TIMEOUT</code> that activates if password isn’t entered within 10 clock cycles. think of what should happen and how to handle it.</p></li>
+<li><p>Implement a prescaler to make LEDs blink at 1 Hz instead of at clock frequency.</p></li>
+<li><p>Add a <code>car_count</code> output that tracks how many cars have entered.</p></li>
+</ol>
+</section>
+<section id="simulation-and-analysis" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Simulation and Analysis</h1>
+<section id="using-ghdl" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="using-ghdl"><span class="header-section-number">7.1</span> Using GHDL</h2>
+<p>You are asked to create your vhdl code and test it using GHDL.</p>
+<pre><code>#############################################################################
+#   GHDL HELP                                                               #
+#                                                                           #
+#   -a [OPTS] FILEs    Analyze FILEs                                        #
+#   -e [OPTS] UNIT [ARCH]  Elaborate UNIT                                   #
+#   -r,--elab-run [OPTS] UNIT [ARCH] [RUNOPTS]  Run UNIT                    #
+#   -c [OPTS] FILEs -r UNIT [ARCH] [RUNOPTS] Compile, elaborate and run UNIT#
+#   -m [OPTS] UNIT [ARCH]  Make UNIT                                        #
+#   --gen-makefile [OPTS] UNIT [ARCH]  Generate a Makefile for UNIT         #
+#   --dispconfig       Disp tools path                                      #
+#   --run-help         Disp help for RUNOPTS options                        #
+#   -i [OPTS] FILEs    Import units of FILEs                                #
+#   -s [OPTS] FILEs    Check syntax of FILEs                                #
+#   -d or --dir        Disp contents of the work library                    #
+#   -f FILEs           Disp units in FILES                                  #
+#   --clean            Remove generated files                               #
+#   --remove           Remove generated files and library file              #
+#   --copy             Copy work library to current directory               #
+#   --disp-standard    Disp std.standard in pseudo-vhdl                     #
+#   --chop [OPTS] FILEs  Chop FILEs                                         #
+#   --lines FILEs      Precede line with its number                         #
+#   --pp-html FILEs    Pretty-print FILEs in HTML                           #
+#   --xref-html FILEs  Display FILEs in HTML with xrefs                     #
+#   --xref FILEs  Generate xrefs                                            #
+#   -h or --help [CMD] Disp this help or [help on CMD]                      #
+#   -v or --version    Disp ghdl version                                    #
+#   --options-help     Disp help for analyzer options                       #
+#############################################################################
+#   To display the options of a GHDL program,                               #
+#   run your programm with the --help option.                               #
+#   Also see --options-help for analyzer options.                           #
+#############################################################################</code></pre>
+<p><strong>For Windows users:</strong></p>
+<p>remember to add your ghdl.exe in the path or use:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Set-Alias</span> <span class="at">-Name</span> ghdl <span class="at">-Value</span> C:<span class="dt">\.</span>...your path<span class="dt">\g</span>hdl.exe</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="compilation-steps" class="level3" data-number="7.1.1">
+<h3 data-number="7.1.1" class="anchored" data-anchor-id="compilation-steps"><span class="header-section-number">7.1.1</span> Compilation Steps</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a> <span class="co">#analyzes your file and let you know if there are issues</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="ex">ghdl</span> <span class="at">-a</span> YOUR_DESIGN.vhd</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a> <span class="co">#compiles both files and generates object: work-obj93.cf</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="ex">ghdl</span> <span class="at">-c</span> YOUR_TESTBENCH.vhd YOUR_DESIGN.vhd </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co"># [OPTIONAL] displays the entity and architectures compiled</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="ex">ghdl</span> <span class="at">-d</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="simulation-execution" class="level3" data-number="7.1.2">
+<h3 data-number="7.1.2" class="anchored" data-anchor-id="simulation-execution"><span class="header-section-number">7.1.2</span> Simulation Execution</h3>
+<p>The first thing you need to do is guess the length needed to test your design and replace it with the appropriate value in XXXXX.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ghdl</span> <span class="at">-r</span> YOUR_TESTBENCH_ENTITY <span class="at">--vcd</span><span class="op">=</span>NAME_OF_SIMULTION.vcd <span class="at">--stop-time</span><span class="op">=</span>XXXXXms  </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#execute the testbench ENTITY and output all the signals into the file NAME_OF_SIMULTION.vcd  </span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#and stops after XXXXXms  if the simulation has not finished before</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Pay attention that you must use the entity created in the previous step and not the vhd file.</p>
+<p>You might need to repeat the compile several times before getting a working simulation.</p>
+</section>
+<section id="waveform-viewing" class="level3" data-number="7.1.3">
+<h3 data-number="7.1.3" class="anchored" data-anchor-id="waveform-viewing"><span class="header-section-number">7.1.3</span> Waveform Viewing</h3>
+<p>You can use GTKWAVE or the VAPORVIEW extension in VsCode.</p>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Conclusion</h1>
+<p>This car parking system demonstrates practical FSM design principles:</p>
+<ul>
+<li><strong>Clear state definition</strong> with distinct behaviors</li>
+<li><strong>Robust sensor handling</strong> to manage multiple cars</li>
+<li><strong>User feedback</strong> through LEDs and displays</li>
+<li><strong>Security</strong> via password validation</li>
+</ul>
+<p>The design is synthesizable and can be implemented on FPGA development boards with appropriate I/O mapping.</p>
+</section>
+<section id="references" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> References</h1>
+<ul>
+<li>IEEE Standard VHDL Language Reference Manual (IEEE Std 1076)</li>
+<li>FPGA Prototyping by VHDL Examples - Pong P. Chu</li>
+<li>Digital Design - M. Morris Man, Michael D. Ciletti</li>
+</ul>
+<section id="potential-improvements-for-a-future-implementation" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="potential-improvements-for-a-future-implementation"><span class="header-section-number">9.1</span> Potential Improvements (for a future implementation)</h2>
+<p>You can suggest some improvements of your own</p>
+<ol type="1">
+<li><strong>Blink Rate Control</strong>: Add a prescaler to slow down LED blinking for visual clarity</li>
+<li><strong>Password Attempts</strong>: Limit wrong password attempts</li>
+<li><strong>Timeout</strong>: Add timeout in WAIT_PASSWORD state</li>
+<li><strong>Debouncing</strong>: Add debounce logic for sensor inputs</li>
+<li><strong>Variable Password</strong>: Make password programmable rather than hardcoded</li>
+</ol>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
