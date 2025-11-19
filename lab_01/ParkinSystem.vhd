@@ -201,7 +201,7 @@ begin
                 GREEN_LED <= '1';
                 if unsigned(counter_wait)>=9 then
                     counter_wait<="0000";
-                    current_state <= WAIT_PASSWORD;
+                    current_state <= IDLE;
 
                 else
                     counter_wait <= std_logic_vector(unsigned(counter_wait) + 1);
