@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Philippe Velha - Logic Networks">
+
+<title>LAB 2: Multi-Gate Parking Controller System</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="LAB2-carparkwithgates_files/libs/clipboard/clipboard.min.js"></script>
+<script src="LAB2-carparkwithgates_files/libs/quarto-html/quarto.js"></script>
+<script src="LAB2-carparkwithgates_files/libs/quarto-html/popper.min.js"></script>
+<script src="LAB2-carparkwithgates_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="LAB2-carparkwithgates_files/libs/quarto-html/anchor.min.js"></script>
+<link href="LAB2-carparkwithgates_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="LAB2-carparkwithgates_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="LAB2-carparkwithgates_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="LAB2-carparkwithgates_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="LAB2-carparkwithgates_files/libs/bootstrap/bootstrap-a1ff8711b79ae3724c050874b28d9907.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a></li>
+  <li><a href="#system-overview" id="toc-system-overview" class="nav-link" data-scroll-target="#system-overview"><span class="header-section-number">2</span> System Overview</a>
+  <ul class="collapse">
+  <li><a href="#the-parking-lot-layout" id="toc-the-parking-lot-layout" class="nav-link" data-scroll-target="#the-parking-lot-layout"><span class="header-section-number">2.1</span> The Parking Lot Layout</a></li>
+  <li><a href="#how-the-system-works" id="toc-how-the-system-works" class="nav-link" data-scroll-target="#how-the-system-works"><span class="header-section-number">2.2</span> How the System Works</a>
+  <ul class="collapse">
+  <li><a href="#entry-process" id="toc-entry-process" class="nav-link" data-scroll-target="#entry-process"><span class="header-section-number">2.2.1</span> Entry Process</a></li>
+  <li><a href="#exit-process" id="toc-exit-process" class="nav-link" data-scroll-target="#exit-process"><span class="header-section-number">2.2.2</span> Exit Process</a></li>
+  <li><a href="#visual-indicators" id="toc-visual-indicators" class="nav-link" data-scroll-target="#visual-indicators"><span class="header-section-number">2.2.3</span> Visual Indicators</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#system-architecture" id="toc-system-architecture" class="nav-link" data-scroll-target="#system-architecture"><span class="header-section-number">3</span> System Architecture</a>
+  <ul class="collapse">
+  <li><a href="#entity-interface" id="toc-entity-interface" class="nav-link" data-scroll-target="#entity-interface"><span class="header-section-number">3.1</span> Entity Interface</a></li>
+  <li><a href="#state-machines" id="toc-state-machines" class="nav-link" data-scroll-target="#state-machines"><span class="header-section-number">3.2</span> State Machines</a>
+  <ul class="collapse">
+  <li><a href="#entry-gate-state-machine-gin1-and-gin2" id="toc-entry-gate-state-machine-gin1-and-gin2" class="nav-link" data-scroll-target="#entry-gate-state-machine-gin1-and-gin2"><span class="header-section-number">3.2.1</span> Entry Gate State Machine (Gin1 and Gin2)</a></li>
+  <li><a href="#exit-gate-state-machine-gout1-and-gout2" id="toc-exit-gate-state-machine-gout1-and-gout2" class="nav-link" data-scroll-target="#exit-gate-state-machine-gout1-and-gout2"><span class="header-section-number">3.2.2</span> Exit Gate State Machine (Gout1 and Gout2)</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#design-tasks" id="toc-design-tasks" class="nav-link" data-scroll-target="#design-tasks"><span class="header-section-number">4</span> Design Tasks</a>
+  <ul class="collapse">
+  <li><a href="#task-1-define-types-and-signals" id="toc-task-1-define-types-and-signals" class="nav-link" data-scroll-target="#task-1-define-types-and-signals"><span class="header-section-number">4.1</span> Task 1: Define Types and Signals</a></li>
+  <li><a href="#task-2-state-register-process" id="toc-task-2-state-register-process" class="nav-link" data-scroll-target="#task-2-state-register-process"><span class="header-section-number">4.2</span> Task 2: State Register Process</a></li>
+  <li><a href="#task-3-entry-gate-state-machines" id="toc-task-3-entry-gate-state-machines" class="nav-link" data-scroll-target="#task-3-entry-gate-state-machines"><span class="header-section-number">4.3</span> Task 3: Entry Gate State Machines</a></li>
+  <li><a href="#task-4-exit-gate-state-machines" id="toc-task-4-exit-gate-state-machines" class="nav-link" data-scroll-target="#task-4-exit-gate-state-machines"><span class="header-section-number">4.4</span> Task 4: Exit Gate State Machines</a></li>
+  <li><a href="#task-5-car-counter-management" id="toc-task-5-car-counter-management" class="nav-link" data-scroll-target="#task-5-car-counter-management"><span class="header-section-number">4.5</span> Task 5: Car Counter Management</a></li>
+  <li><a href="#task-6-7-segment-display-decoder" id="toc-task-6-7-segment-display-decoder" class="nav-link" data-scroll-target="#task-6-7-segment-display-decoder"><span class="header-section-number">4.6</span> Task 6: 7-Segment Display Decoder</a></li>
+  </ul></li>
+  <li><a href="#testing-your-design" id="toc-testing-your-design" class="nav-link" data-scroll-target="#testing-your-design"><span class="header-section-number">5</span> Testing Your Design</a>
+  <ul class="collapse">
+  <li><a href="#testbench-overview" id="toc-testbench-overview" class="nav-link" data-scroll-target="#testbench-overview"><span class="header-section-number">5.1</span> Testbench Overview</a>
+  <ul class="collapse">
+  <li><a href="#test-case-1-parking_tb_case1.vhd" id="toc-test-case-1-parking_tb_case1.vhd" class="nav-link" data-scroll-target="#test-case-1-parking_tb_case1.vhd"><span class="header-section-number">5.1.1</span> Test Case 1 (parking_tb_case1.vhd)</a></li>
+  <li><a href="#test-case-2-parking_tb_case2.vhd" id="toc-test-case-2-parking_tb_case2.vhd" class="nav-link" data-scroll-target="#test-case-2-parking_tb_case2.vhd"><span class="header-section-number">5.1.2</span> Test Case 2 (parking_tb_case2.vhd)</a></li>
+  </ul></li>
+  <li><a href="#running-simulations" id="toc-running-simulations" class="nav-link" data-scroll-target="#running-simulations"><span class="header-section-number">5.2</span> Running Simulations</a></li>
+  <li><a href="#what-to-observe-in-waveforms" id="toc-what-to-observe-in-waveforms" class="nav-link" data-scroll-target="#what-to-observe-in-waveforms"><span class="header-section-number">5.3</span> What to Observe in Waveforms</a></li>
+  </ul></li>
+  <li><a href="#deliverables" id="toc-deliverables" class="nav-link" data-scroll-target="#deliverables"><span class="header-section-number">6</span> Deliverables</a>
+  <ul class="collapse">
+  <li><a href="#what-to-submit" id="toc-what-to-submit" class="nav-link" data-scroll-target="#what-to-submit"><span class="header-section-number">6.1</span> What to Submit</a></li>
+  </ul></li>
+  <li><a href="#discussion-questions-optional-in-the-report" id="toc-discussion-questions-optional-in-the-report" class="nav-link" data-scroll-target="#discussion-questions-optional-in-the-report"><span class="header-section-number">7</span> Discussion Questions (Optional in the report)</a></li>
+  <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources"><span class="header-section-number">8</span> Resources</a>
+  <ul class="collapse">
+  <li><a href="#vhdl-quick-reference" id="toc-vhdl-quick-reference" class="nav-link" data-scroll-target="#vhdl-quick-reference"><span class="header-section-number">8.1</span> VHDL Quick Reference</a></li>
+  <li><a href="#useful-libraries" id="toc-useful-libraries" class="nav-link" data-scroll-target="#useful-libraries"><span class="header-section-number">8.2</span> Useful Libraries</a></li>
+  </ul></li>
+  <li><a href="#getting-started-checklist" id="toc-getting-started-checklist" class="nav-link" data-scroll-target="#getting-started-checklist"><span class="header-section-number">9</span> Getting Started Checklist</a></li>
+  <li><a href="#good-luck" id="toc-good-luck" class="nav-link" data-scroll-target="#good-luck"><span class="header-section-number">10</span> Good Luck!</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">LAB 2: Multi-Gate Parking Controller System</h1>
+<p class="subtitle lead">VHDL Design and Simulation Lab Exercise</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Philippe Velha - Logic Networks </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
+<p>Welcome to the lab2 project! In this project, you’ll design and implement a VHDL-based parking management system that controls multiple entry and exit gates, tracks available parking spots, and manages payment processes.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Group Work
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is a <strong>group project</strong> designed to be completed before the exam. You are encouraged to:</p>
+<ul>
+<li>Discuss design approaches with other groups</li>
+<li>Share ideas about state machine implementations</li>
+<li>Help each other debug issues</li>
+<li>Compare simulation results</li>
+</ul>
+<p>However, each group should write their own code, report and understand the complete design.</p>
+</div>
+</div>
+</section>
+<section id="system-overview" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> System Overview</h1>
+<section id="the-parking-lot-layout" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="the-parking-lot-layout"><span class="header-section-number">2.1</span> The Parking Lot Layout</h2>
+<p>Your parking system manages a parking facility with:</p>
+<ul>
+<li><strong>Capacity</strong>: 7 parking spots (configurable via generic)</li>
+<li><strong>Entry Gates</strong>: 2 gates (Gin1 and Gin2)</li>
+<li><strong>Exit Gates</strong>: 2 gates (Gout1 and Gout2)</li>
+<li><strong>Display</strong>: 7-segment display showing available spots</li>
+<li><strong>Indicators</strong>: Green/Red lights for availability status</li>
+</ul>
+</section>
+<section id="how-the-system-works" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="how-the-system-works"><span class="header-section-number">2.2</span> How the System Works</h2>
+<section id="entry-process" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="entry-process"><span class="header-section-number">2.2.1</span> Entry Process</h3>
+<ol type="1">
+<li><strong>Car Detection</strong>: When a car approaches an entry gate, sensor A (before the barrier) detects it</li>
+<li><strong>Capacity Check</strong>: System checks if parking spots are available</li>
+<li><strong>Barrier Opens</strong>: If spots available, the barrier opens</li>
+<li><strong>Car Entry</strong>: Car passes through, sensor B (after barrier) confirms passage</li>
+<li><strong>Count Update</strong>: Available spots decrease by 1</li>
+<li><strong>Barrier Closes</strong>: After car clears sensor B, barrier closes</li>
+</ol>
+</section>
+<section id="exit-process" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="exit-process"><span class="header-section-number">2.2.2</span> Exit Process</h3>
+<ol type="1">
+<li><strong>Car Detection</strong>: Sensor A at exit gate detects departing car</li>
+<li><strong>Payment Request</strong>: System requests payment output payment_request to ‘1’</li>
+<li><strong>Payment Processing</strong>: Driver completes payment (not to be designed)</li>
+<li><strong>Payment Confirmation</strong>: System receives payment_done signal</li>
+<li><strong>Barrier Opens</strong>: Exit barrier opens</li>
+<li><strong>Car Exit</strong>: Car leaves, sensor B confirms</li>
+<li><strong>Count Update</strong>: Available spots increase by 1</li>
+<li><strong>Barrier Closes</strong>: Barrier closes after car clears</li>
+</ol>
+</section>
+<section id="visual-indicators" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="visual-indicators"><span class="header-section-number">2.2.3</span> Visual Indicators</h3>
+<ul>
+<li><strong>Green Light</strong>: ON when spots are available</li>
+<li><strong>Red Light</strong>: ON when parking is full</li>
+<li><strong>Payment Request</strong>: We are going to assume a simple led</li>
+<li><strong>7-Segment Display</strong>: Shows number of available spots (0-7)</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="system-architecture" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> System Architecture</h1>
+<section id="entity-interface" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="entity-interface"><span class="header-section-number">3.1</span> Entity Interface</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">entity</span> <span class="dv">Parking_Controller</span> <span class="kw">is</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">generic</span> (</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        PARKING_CAPACITY <span class="ot">:</span> <span class="dt">integer</span> <span class="ot">:=</span> <span class="dv">7</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    );</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">port</span> (</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Clock and Reset</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        clk              <span class="ot">:</span> <span class="kw">in</span>  <span class="dt">std_logic</span>;</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        nrst             <span class="ot">:</span> <span class="kw">in</span>  <span class="dt">std_logic</span>;</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Entry Gate 1 Sensors</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        sensor_A_Gin1    <span class="ot">:</span> <span class="kw">in</span>  <span class="dt">std_logic</span>;  <span class="co">-- Before barrier</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        sensor_B_Gin1    <span class="ot">:</span> <span class="kw">in</span>  <span class="dt">std_logic</span>;  <span class="co">-- After barrier</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Entry Gate 2 Sensors</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        sensor_A_Gin2    <span class="ot">:</span> <span class="kw">in</span>  <span class="dt">std_logic</span>;</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        sensor_B_Gin2    <span class="ot">:</span> <span class="kw">in</span>  <span class="dt">std_logic</span>;</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Exit Gate 1 Sensors</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        sensor_A_Gout1   <span class="ot">:</span> <span class="kw">in</span>  <span class="dt">std_logic</span>;</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        sensor_B_Gout1   <span class="ot">:</span> <span class="kw">in</span>  <span class="dt">std_logic</span>;</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Exit Gate 2 Sensors</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        sensor_A_Gout2   <span class="ot">:</span> <span class="kw">in</span>  <span class="dt">std_logic</span>;</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        sensor_B_Gout2   <span class="ot">:</span> <span class="kw">in</span>  <span class="dt">std_logic</span>;</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Payment Interface</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        payment_done     <span class="ot">:</span> <span class="kw">in</span>  <span class="dt">std_logic</span>;</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        payment_accepted <span class="ot">:</span> <span class="kw">out</span> <span class="dt">std_logic</span>;</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        payment_request  <span class="ot">:</span> <span class="kw">out</span> <span class="dt">std_logic</span>;</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Barrier Controls</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        barrier_Gin1     <span class="ot">:</span> <span class="kw">out</span> <span class="dt">std_logic</span>;  <span class="co">-- '1' = open</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        barrier_Gin2     <span class="ot">:</span> <span class="kw">out</span> <span class="dt">std_logic</span>;</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        barrier_Gout1    <span class="ot">:</span> <span class="kw">out</span> <span class="dt">std_logic</span>;</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        barrier_Gout2    <span class="ot">:</span> <span class="kw">out</span> <span class="dt">std_logic</span>;</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Visual Indicators</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>        Green_Light      <span class="ot">:</span> <span class="kw">out</span> <span class="dt">std_logic</span>;</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>        Red_Light        <span class="ot">:</span> <span class="kw">out</span> <span class="dt">std_logic</span>;</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>        display          <span class="ot">:</span> <span class="kw">out</span> <span class="dt">std_logic_vector</span>(<span class="dv">6</span> <span class="ot">downto</span> <span class="dv">0</span>)</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    );</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="cf">end entity;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="state-machines" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="state-machines"><span class="header-section-number">3.2</span> State Machines</h2>
+<p>Your design requires <strong>four separate state machines</strong>, one for each gate:</p>
+<section id="entry-gate-state-machine-gin1-and-gin2" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="entry-gate-state-machine-gin1-and-gin2"><span class="header-section-number">3.2.1</span> Entry Gate State Machine (Gin1 and Gin2)</h3>
+<pre><code>States:
+- IDLE: Waiting for car
+- CAR_DETECTED: Sensor A triggered, checking capacity
+- CAR_ENTERING: Barrier open, car passing through
+- CAR_ENTERED: Car fully inside, preparing to close barrier</code></pre>
+<p><strong>State Transitions</strong>:</p>
+<pre><code>IDLE → CAR_DETECTED: sensor_A = '1' AND car_count &lt; CAPACITY
+CAR_DETECTED → CAR_ENTERING: sensor_B = '1'
+CAR_DETECTED → IDLE: sensor_A = '0' (car left)
+CAR_ENTERING → CAR_ENTERED: sensor_A = '0' AND sensor_B = '1'
+CAR_ENTERING → CAR_DETECTED: sensor_A = '1' AND sensor_B = '0' (reverse)
+CAR_ENTERED → IDLE: sensor_B = '0' (car cleared)</code></pre>
+</section>
+<section id="exit-gate-state-machine-gout1-and-gout2" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="exit-gate-state-machine-gout1-and-gout2"><span class="header-section-number">3.2.2</span> Exit Gate State Machine (Gout1 and Gout2)</h3>
+<pre><code>States:
+- IDLE: Waiting for car
+- WAIT_PAYMENT: Car detected, waiting for payment
+- PAYMENT_OK: Payment accepted, barrier opening
+- CAR_EXITING: Car passing through barrier
+- CAR_EXITED: Car fully outside</code></pre>
+<p><strong>State Transitions</strong>:</p>
+<pre><code>IDLE → WAIT_PAYMENT: sensor_A = '1' AND car_count &gt; 0
+WAIT_PAYMENT → WAIT_PAYMENT: sensor_A = '0' (loop until stays)
+WAIT_PAYMENT → PAYMENT_OK: payment_done = '1'
+PAYMENT_OK → CAR_EXITING: sensor_B = '1'
+CAR_EXITING → CAR_EXITED: sensor_A = '0' AND sensor_B = '1'
+CAR_EXITED → IDLE: sensor_B = '0'</code></pre>
+</section>
+</section>
+</section>
+<section id="design-tasks" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Design Tasks</h1>
+<p>All the tasks provide some hints and suggestions. Modifications are accepted if you justify them by a proper argument. Your are the designers, you choose. However, I am the client therefore you need to convince me if you change something.</p>
+<section id="task-1-define-types-and-signals" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="task-1-define-types-and-signals"><span class="header-section-number">4.1</span> Task 1: Define Types and Signals</h2>
+<p>Start by defining the necessary types and internal signals:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">architecture</span> <span class="dv">Behavioral</span> <span class="kw">of</span> <span class="fu">Parking_Controller</span> <span class="kw">is</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- State machine types</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="ot">type</span> gate_state_type <span class="ot">is</span> (IDLE<span class="ot">,</span> CAR_DETECTED<span class="ot">,</span> CAR_ENTERING<span class="ot">,</span> CAR_ENTERED);</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">type</span> exit_state_type <span class="ot">is</span> (IDLE<span class="ot">,</span> WAIT_PAYMENT<span class="ot">,</span> PAYMENT_OK<span class="ot">,</span> </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                              CAR_EXITING<span class="ot">,</span> CAR_EXITED);</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- State signals for each gate</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="ot">signal</span> state_Gin1<span class="ot">,</span> next_state_Gin1 <span class="ot">:</span> gate_state_type;</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="ot">signal</span> state_Gin2<span class="ot">,</span> next_state_Gin2 <span class="ot">:</span> gate_state_type;</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">signal</span> state_Gout1<span class="ot">,</span> next_state_Gout1 <span class="ot">:</span> exit_state_type;</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="ot">signal</span> state_Gout2<span class="ot">,</span> next_state_Gout2 <span class="ot">:</span> exit_state_type;</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Car counter</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="ot">signal</span> car_count <span class="ot">:</span> <span class="dt">integer</span> <span class="kw">range</span> <span class="dv">0</span> <span class="ot">to</span> PARKING_CAPACITY <span class="ot">:=</span> <span class="dv">0</span>;</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Edge detection for sensors</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="ot">signal</span> sensor_A_Gin1_prev<span class="ot">,</span> sensor_B_Gin1_prev <span class="ot">:</span> <span class="dt">std_logic</span>;</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- ... (add for other gates)</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Increment/decrement flags</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="ot">signal</span> inc_Gin1<span class="ot">,</span> inc_Gin2 <span class="ot">:</span> <span class="dt">std_logic</span>;</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="ot">signal</span> dec_Gout1<span class="ot">,</span> dec_Gout2 <span class="ot">:</span> <span class="dt">std_logic</span>;</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Payment signals</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="ot">signal</span> payment_accepted_Gout1<span class="ot">,</span> payment_accepted_Gout2 <span class="ot">:</span> <span class="dt">std_logic</span>;</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="cf">begin</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Design Hint
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use separate signals for each gate’s state machine to keep the logic clear and maintainable. Each gate operates independently!</p>
+</div>
+</div>
+</section>
+<section id="task-2-state-register-process" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="task-2-state-register-process"><span class="header-section-number">4.2</span> Task 2: State Register Process</h2>
+<p>Implement the synchronous state register:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>stateregister<span class="ot">:</span> <span class="kw">process</span>(clk<span class="ot">,</span> nrst)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">begin</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> nrst <span class="ot">=</span> <span class="bn">'0'</span> <span class="kw">then</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Reset all states to IDLE</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        state_Gin1 <span class="ot">&lt;=</span> IDLE;</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        state_Gin2 <span class="ot">&lt;=</span> IDLE;</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        state_Gout1 <span class="ot">&lt;=</span> IDLE;</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        state_Gout2 <span class="ot">&lt;=</span> IDLE;</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Reset sensor history</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        sensor_A_Gin1_prev <span class="ot">&lt;=</span> <span class="bn">'0'</span>;</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        sensor_B_Gin1_prev <span class="ot">&lt;=</span> <span class="bn">'0'</span>;</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- ... (reset others)</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">elsif</span> <span class="kw">rising_edge</span>(clk) <span class="kw">then</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Update states</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        state_Gin1 <span class="ot">&lt;=</span> next_state_Gin1;</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- ... (update others)</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Store sensor values for edge detection</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        sensor_A_Gin1_prev <span class="ot">&lt;=</span> sensor_A_Gin1;</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- ... (store others)</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span> <span class="kw">if</span>;</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> <span class="kw">process</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="task-3-entry-gate-state-machines" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="task-3-entry-gate-state-machines"><span class="header-section-number">4.3</span> Task 3: Entry Gate State Machines</h2>
+<p>Implement the combinational logic for entry gates. Here’s a template for Gin1 (to be completed and modified accordingly):</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>gin1<span class="ot">:</span> <span class="kw">process</span>(state_Gin1<span class="ot">,</span> sensor_A_Gin1<span class="ot">,</span> sensor_B_Gin1<span class="ot">,</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>              sensor_A_Gin1_prev<span class="ot">,</span> sensor_B_Gin1_prev<span class="ot">,</span> car_count)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">begin</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Default values</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    next_state_Gin1 <span class="ot">&lt;=</span> state_Gin1;</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    barrier_Gin1 <span class="ot">&lt;=</span> <span class="bn">'0'</span>;</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    inc_Gin1 <span class="ot">&lt;=</span> <span class="bn">'0'</span>;</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> state_Gin1 <span class="kw">is</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">when</span> IDLE <span class="ot">=&gt;</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- Check for car arrival and capacity</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>            <span class="kw">if</span> sensor_A_Gin1 <span class="ot">=</span> <span class="bn">'1'</span> <span class="kw">and</span> car_count <span class="ot">&lt;</span> PARKING_CAPACITY <span class="kw">then</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>                next_state_Gin1 <span class="ot">&lt;=</span> CAR_DETECTED;</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span> <span class="kw">if</span>;</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">when</span> CAR_DETECTED <span class="ot">=&gt;</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- </span><span class="al">TODO</span><span class="co">: Implement transitions</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- - Back to IDLE if car leaves</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- - To CAR_ENTERING if sensor B triggered</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        <span class="kw">when</span> CAR_ENTERING <span class="ot">=&gt;</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>            barrier_Gin1 <span class="ot">&lt;=</span> <span class="bn">'1'</span>;  <span class="co">-- Keep barrier open</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- </span><span class="al">TODO</span><span class="co">: Implement transitions</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- - To CAR_ENTERED when car fully inside</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- - Handle reverse scenario</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>        <span class="kw">when</span> CAR_ENTERED <span class="ot">=&gt;</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>            barrier_Gin1 <span class="ot">&lt;=</span> <span class="bn">'1'</span>;</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- </span><span class="al">TODO</span><span class="co">: Implement transition back to IDLE</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- Set inc_Gin1 to increment counter</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span> <span class="kw">case</span>;</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> <span class="kw">process</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Critical Logic
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Make sure to:</p>
+<ol type="1">
+<li>Only open barriers when there’s capacity (entry gates)</li>
+<li>Only open barriers after payment (exit gates)</li>
+<li>Properly detect when car has fully passed (sensor A = 0, sensor B = 1)</li>
+<li>Set increment/decrement flags at the right time</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="task-4-exit-gate-state-machines" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="task-4-exit-gate-state-machines"><span class="header-section-number">4.4</span> Task 4: Exit Gate State Machines</h2>
+<p>Implement exit gates similarly. Key differences:</p>
+<ul>
+<li>Check <code>car_count &gt; 0</code> instead of capacity</li>
+<li>Handle payment request and acceptance</li>
+<li>Use 5 states instead of 4 but can be modified</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>gout1<span class="ot">:</span> <span class="kw">process</span>(state_Gout1<span class="ot">,</span> sensor_A_Gout1<span class="ot">,</span> sensor_B_Gout1<span class="ot">,</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>               payment_done<span class="ot">,</span> car_count)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">begin</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Default values</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    next_state_Gout1 <span class="ot">&lt;=</span> state_Gout1;</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    barrier_Gout1 <span class="ot">&lt;=</span> <span class="bn">'0'</span>;</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    payment_request <span class="ot">&lt;=</span> <span class="bn">'0'</span>;</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    payment_accepted_Gout1 <span class="ot">&lt;=</span> <span class="bn">'0'</span>;</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    dec_Gout1 <span class="ot">&lt;=</span> <span class="bn">'0'</span>;</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> state_Gout1 <span class="kw">is</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">when</span> IDLE <span class="ot">=&gt;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- </span><span class="al">TODO</span><span class="co">: Detect car and check if parking has cars</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">when</span> WAIT_PAYMENT <span class="ot">=&gt;</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>            payment_request <span class="ot">&lt;=</span> <span class="bn">'1'</span>;  <span class="co">-- Turn on payment light</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- </span><span class="al">TODO</span><span class="co">: Wait for payment or car to leave</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        <span class="kw">when</span> PAYMENT_OK <span class="ot">=&gt;</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>            payment_accepted_Gout1 <span class="ot">&lt;=</span> <span class="bn">'1'</span>;</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- </span><span class="al">TODO</span><span class="co">: Wait for car to start exiting</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        <span class="kw">when</span> CAR_EXITING <span class="ot">=&gt;</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>            barrier_Gout1 <span class="ot">&lt;=</span> <span class="bn">'1'</span>;</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- </span><span class="al">TODO</span><span class="co">: Detect when car fully exits</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>        <span class="kw">when</span> CAR_EXITED <span class="ot">=&gt;</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>            barrier_Gout1 <span class="ot">&lt;=</span> <span class="bn">'1'</span>;</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- </span><span class="al">TODO</span><span class="co">: Return to IDLE and decrement counter</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span> <span class="kw">case</span>;</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> <span class="kw">process</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="task-5-car-counter-management" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="task-5-car-counter-management"><span class="header-section-number">4.5</span> Task 5: Car Counter Management</h2>
+<p>Implement the counter that tracks available spots:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>countermgt<span class="ot">:</span> <span class="kw">process</span>(clk<span class="ot">,</span> nrst)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">begin</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> nrst <span class="ot">=</span> <span class="bn">'0'</span> <span class="kw">then</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        car_count <span class="ot">&lt;=</span> <span class="dv">0</span>;</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">elsif</span> <span class="kw">rising_edge</span>(clk) <span class="kw">then</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Handle increments from entry gates</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> inc_Gin1 <span class="ot">=</span> <span class="bn">'1'</span> <span class="kw">then</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>            car_count <span class="ot">&lt;=</span> car_count <span class="ot">+</span> <span class="dv">1</span>;</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        <span class="kw">elsif</span> inc_Gin2 <span class="ot">=</span> <span class="bn">'1'</span> <span class="kw">then</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>            car_count <span class="ot">&lt;=</span> car_count <span class="ot">+</span> <span class="dv">1</span>;</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Handle decrements from exit gates</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">elsif</span> dec_Gout1 <span class="ot">=</span> <span class="bn">'1'</span> <span class="kw">then</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>            car_count <span class="ot">&lt;=</span> car_count <span class="ot">-</span> <span class="dv">1</span>;</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">elsif</span> dec_Gout2 <span class="ot">=</span> <span class="bn">'1'</span> <span class="kw">then</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>            car_count <span class="ot">&lt;=</span> car_count <span class="ot">-</span> <span class="dv">1</span>;</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">end</span> <span class="kw">if</span>;</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span> <span class="kw">if</span>;</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> <span class="kw">process</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Race Condition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Notice the <code>elsif</code> structure. Why? What happens if two cars enter/exit simultaneously? Discuss with your group how to handle this in a real system!</p>
+</div>
+</div>
+</section>
+<section id="task-6-7-segment-display-decoder" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="task-6-7-segment-display-decoder"><span class="header-section-number">4.6</span> Task 6: 7-Segment Display Decoder</h2>
+<p>Implement a function to convert the available spots count to 7-segment display:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="at">function</span> <span class="dv">int_to_7seg</span>(value <span class="ot">:</span> <span class="dt">integer</span>) <span class="cf">return</span> <span class="dt">std_logic_vector</span> <span class="kw">is</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">variable</span> result <span class="ot">:</span> <span class="dt">std_logic_vector</span>(<span class="dv">6</span> <span class="ot">downto</span> <span class="dv">0</span>);</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="at">begin</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> value <span class="kw">is</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">when</span> <span class="dv">0</span> <span class="ot">=&gt;</span> result <span class="ot">:=</span> <span class="st">"0000001"</span>;  <span class="co">-- Display '0'</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">when</span> <span class="dv">1</span> <span class="ot">=&gt;</span> result <span class="ot">:=</span> <span class="st">"1001111"</span>;  <span class="co">-- Display '1'</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">when</span> <span class="dv">2</span> <span class="ot">=&gt;</span> result <span class="ot">:=</span> <span class="st">"0010010"</span>;  <span class="co">-- Display '2'</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">when</span> <span class="dv">3</span> <span class="ot">=&gt;</span> result <span class="ot">:=</span> <span class="st">"0000110"</span>;  <span class="co">-- Display '3'</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">when</span> <span class="dv">4</span> <span class="ot">=&gt;</span> result <span class="ot">:=</span> <span class="st">"1001100"</span>;  <span class="co">-- Display '4'</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">when</span> <span class="dv">5</span> <span class="ot">=&gt;</span> result <span class="ot">:=</span> <span class="st">"0100100"</span>;  <span class="co">-- Display '5'</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">when</span> <span class="dv">6</span> <span class="ot">=&gt;</span> result <span class="ot">:=</span> <span class="st">"0100000"</span>;  <span class="co">-- Display '6'</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">when</span> <span class="dv">7</span> <span class="ot">=&gt;</span> result <span class="ot">:=</span> <span class="st">"0001111"</span>;  <span class="co">-- Display '7'</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">when</span> <span class="kw">others</span> <span class="ot">=&gt;</span> result <span class="ot">:=</span> <span class="st">"1111111"</span>;  <span class="co">-- Error</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end case;</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result;</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="at">end function;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then use it:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Display available spots</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>display <span class="ot">&lt;=</span> int_to_7seg(PARKING_CAPACITY <span class="ot">-</span> car_count);</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- Control indicator lights</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>Green_Light <span class="ot">&lt;=</span> <span class="bn">'1'</span> <span class="kw">when</span> car_count <span class="ot">&lt;</span> PARKING_CAPACITY <span class="kw">else</span> <span class="bn">'0'</span>;</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>Red_Light <span class="ot">&lt;=</span> <span class="bn">'1'</span> <span class="kw">when</span> car_count <span class="ot">=</span> PARKING_CAPACITY <span class="kw">else</span> <span class="bn">'0'</span>;</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">-- Payment accepted from either exit gate</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>payment_accepted <span class="ot">&lt;=</span> payment_accepted_Gout1 <span class="kw">or</span> payment_accepted_Gout2;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="testing-your-design" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Testing Your Design</h1>
+<section id="testbench-overview" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="testbench-overview"><span class="header-section-number">5.1</span> Testbench Overview</h2>
+<p>Two testbenches are provided:</p>
+<section id="test-case-1-parking_tb_case1.vhd" class="level3" data-number="5.1.1">
+<h3 data-number="5.1.1" class="anchored" data-anchor-id="test-case-1-parking_tb_case1.vhd"><span class="header-section-number">5.1.1</span> Test Case 1 (parking_tb_case1.vhd)</h3>
+<p><strong>Scenario</strong>: Basic functionality test</p>
+<ul>
+<li>Tests single car entry through Gin1</li>
+<li>Tests single car exit through Gout1 with payment</li>
+<li>Verifies counter increments and decrements</li>
+<li>Checks display updates</li>
+</ul>
+<p><strong>Expected Behavior</strong>:</p>
+<ol type="1">
+<li>Initially: car_count = 0, display shows “7”</li>
+<li>After entry: car_count = 1, display shows “6”</li>
+<li>After exit: car_count = 0, display shows “7”</li>
+</ol>
+</section>
+<section id="test-case-2-parking_tb_case2.vhd" class="level3" data-number="5.1.2">
+<h3 data-number="5.1.2" class="anchored" data-anchor-id="test-case-2-parking_tb_case2.vhd"><span class="header-section-number">5.1.2</span> Test Case 2 (parking_tb_case2.vhd)</h3>
+<p><strong>Scenario</strong>: Advanced test with multiple gates</p>
+<ul>
+<li>Multiple cars entering through different gates</li>
+<li>Concurrent operations</li>
+<li>Full parking lot scenario</li>
+<li>Multiple exits with payment processing</li>
+</ul>
+<p><strong>Expected Behavior</strong>:</p>
+<ul>
+<li>System handles simultaneous gate operations</li>
+<li>Correctly rejects entry when full</li>
+<li>Payment system works for all exit gates</li>
+</ul>
+</section>
+</section>
+<section id="running-simulations" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="running-simulations"><span class="header-section-number">5.2</span> Running Simulations</h2>
+<ol type="1">
+<li><strong>Compile</strong> your design:</li>
+</ol>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>   <span class="ex">ghdl</span> <span class="at">-a</span> carpark2gates.vhd</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>   <span class="ex">ghdl</span> <span class="at">-a</span> parking_tb_case1.vhd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="2" type="1">
+<li><strong>Elaborate or compile</strong>:</li>
+</ol>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>   <span class="ex">ghdl</span> <span class="at">-e</span> parking_tb_case1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This might not work in some platforms:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>   <span class="ex">ghdl</span> <span class="at">-c</span> carpark2gates.vhd parking_tb_case1.vhd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="3" type="1">
+<li><strong>Run simulation</strong>:</li>
+</ol>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ghdl</span> <span class="at">-r</span> parking_tb_case1 <span class="at">--vcd</span><span class="op">=</span>case1.vcd <span class="at">--stop-time</span><span class="op">=</span>xxus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="4" type="1">
+<li><strong>View waveforms</strong>:</li>
+</ol>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gtkwave</span> case1.vcd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>or use a plugin in vscode</p>
+</section>
+<section id="what-to-observe-in-waveforms" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="what-to-observe-in-waveforms"><span class="header-section-number">5.3</span> What to Observe in Waveforms</h2>
+<p>Pay attention to:</p>
+<ul>
+<li><strong>The test benches</strong>: have already some warning and errors that are checked</li>
+<li><strong>State transitions</strong>: Are they happening at the right time?</li>
+<li><strong>Barrier control</strong>: Opens only when appropriate?</li>
+<li><strong>Counter updates</strong>: Increments/decrements correctly?</li>
+<li><strong>Sensor sequences</strong>: Proper detection of car passage?</li>
+<li><strong>Payment flow</strong>: Request → Done → Acceptance → Barrier?</li>
+<li><strong>Timing</strong>: No glitches or unexpected behavior?</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Debugging Tips
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If your simulation doesn’t work:</p>
+<ol type="1">
+<li>Check state transitions one gate at a time</li>
+<li>Add <code>report</code> statements to track state changes (look the other assessments)</li>
+<li>Verify sensor edge detection logic</li>
+<li>Ensure counter increments happen only once per car</li>
+<li>Check that barriers close after cars pass</li>
+</ol>
+</div>
+</div>
+</section>
+</section>
+<section id="deliverables" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Deliverables</h1>
+<section id="what-to-submit" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="what-to-submit"><span class="header-section-number">6.1</span> What to Submit</h2>
+<ol type="1">
+<li><p><strong>VHDL Source Code</strong>: <code>carpark2gates.vhd</code></p></li>
+<li><p><strong>Simulation Reports</strong>: Screenshots of waveforms showing:</p>
+<ul>
+<li>the different Test Cases (1,2,3,4) passing</li>
+<li>Key signals annotated</li>
+<li>you can add the vcd files</li>
+</ul></li>
+<li><p><strong>Design Document</strong> (brief):</p>
+<ul>
+<li>State machine diagrams if modified or if you want to include your annotated algorithmic state machine</li>
+<li>Explanation of design choices</li>
+<li>Any assumptions made</li>
+<li>Known limitations and what could be improved</li>
+</ul></li>
+</ol>
+</section>
+</section>
+<section id="discussion-questions-optional-in-the-report" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Discussion Questions (Optional in the report)</h1>
+<p>As you work, consider these questions with your group:</p>
+<ol type="1">
+<li><p><strong>Concurrency</strong>: What happens if two cars arrive at different entry gates at exactly the same time?</p></li>
+<li><p><strong>Failure Modes</strong>: What if a sensor gets stuck? How could you detect this?</p></li>
+<li><p><strong>Real-World Concerns</strong>:</p>
+<ul>
+<li>How would you handle sensor noise?</li>
+<li>What about cars backing up?</li>
+<li>Network connectivity for payment systems?</li>
+</ul></li>
+<li><p><strong>Scalability</strong>: How would you modify this for:</p>
+<ul>
+<li>100 parking spots?</li>
+<li>10 entry/exit gates?</li>
+<li>Multiple levels?</li>
+</ul></li>
+<li><p><strong>State Machine Design</strong>: How could you change it to improve the system?</p></li>
+</ol>
+</section>
+<section id="resources" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Resources</h1>
+<section id="vhdl-quick-reference" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="vhdl-quick-reference"><span class="header-section-number">8.1</span> VHDL Quick Reference</h2>
+<p><strong>Common Syntax</strong>:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Conditional signal assignment</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ot">signal</span> <span class="ot">&lt;=</span> value1 <span class="kw">when</span> condition <span class="kw">else</span> value2;</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- If statement</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="kw">if</span> condition <span class="kw">then</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- statements</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="kw">elsif</span> other_condition <span class="kw">then</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- statements</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="kw">else</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- statements</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> <span class="kw">if</span>;</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co">-- Case statement</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="kw">case</span> <span class="ot">signal</span> <span class="kw">is</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">when</span> value1 <span class="ot">=&gt;</span> <span class="co">-- statements</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">when</span> value2 <span class="ot">=&gt;</span> <span class="co">-- statements</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">when</span> <span class="ot">others</span> <span class="ot">=&gt;</span> <span class="co">-- statements</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> <span class="kw">case</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="useful-libraries" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="useful-libraries"><span class="header-section-number">8.2</span> Useful Libraries</h2>
+<p>Already included in your template:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode vhdl code-with-copy"><code class="sourceCode vhdl"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">library</span> IEEE;</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> IEEE<span class="ot">.</span>STD_LOGIC_1164<span class="ot">.</span><span class="kw">ALL</span>;</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> IEEE<span class="ot">.</span>NUMERIC_STD<span class="ot">.</span><span class="kw">ALL</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="getting-started-checklist" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Getting Started Checklist</h1>
+<ul class="task-list">
+<li><label><input type="checkbox">Read through entire document</label></li>
+<li><label><input type="checkbox">Discuss overall architecture approach</label></li>
+<li><label><input type="checkbox">Sketch algorithmic state machine diagrams on paper</label></li>
+<li><label><input type="checkbox">Set up VHDL development environment</label></li>
+<li><label><input type="checkbox">Create entity and architecture skeleton (using templates)</label></li>
+<li><label><input type="checkbox">Implement and test one gate at a time by creating a simplified testbench</label></li>
+<li><label><input type="checkbox">Test with Case 1 testbench</label></li>
+<li><label><input type="checkbox">Debug and refine</label></li>
+<li><label><input type="checkbox">Test with Case 2 testbench</label></li>
+<li><label><input type="checkbox">Test with Case 3 testbench</label></li>
+<li><label><input type="checkbox">Test with Case 4 testbench</label></li>
+<li><label><input type="checkbox">Document your design</label></li>
+</ul>
+</section>
+<section id="good-luck" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Good Luck!</h1>
+<p>Remember: This is a learning exercise. Don’t be afraid to:</p>
+<ul>
+<li>Ask questions</li>
+<li>Try different approaches</li>
+<li>Make mistakes and learn from them</li>
+<li>Collaborate with other groups</li>
+<li>Explain your reasoning to others</li>
+</ul>
+<p>The goal is to understand digital system design, state machines, and VHDL, not just to get working code. Have fun! 🚗🅿️</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
